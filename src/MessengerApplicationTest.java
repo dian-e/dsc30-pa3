@@ -56,13 +56,11 @@ public class MessengerApplicationTest {
 
         try { photoA = new PhotoMessage(marina, "users/Marina/images/IMG_5550.JPG"); }
         catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
-
         try { photoB = new PhotoMessage(mar, "selfie.giF"); }
         catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
 
         try { stickerA = new StickerMessage(marina, "default-objeccts/telephone"); }
         catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
-
         try { stickerB = new StickerMessage(marina, "mar-collections-8/LOLFace"); }
         catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
     }
@@ -96,6 +94,13 @@ public class MessengerApplicationTest {
         } catch (OperationDeniedException ode) {
             fail("ODE should not be thrown");
         }
+    }
+
+    // Message concrete classes
+    @Test
+    public void testMessageGetters() {
+        assertEquals(date, textA.getDate());
+        assertEquals(marina, photoA.getSender());
     }
 
     // TextMessage class
