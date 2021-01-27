@@ -16,6 +16,7 @@ public class StandardUser extends User {
     // Message to append when fetching non-text message
     private static final String FETCH_DENIED_MSG =
             "This message cannot be fetched because you are not a premium user.";
+    private static final int MAX_MSGS_FETCHED = 100;
 
     /**
      * A constructor that initializes the username, bio, and message exchange room
@@ -41,7 +42,7 @@ public class StandardUser extends User {
         List<Message> log = me.getLog();
         int logLen = log.size();
         // takes last 100 messages if the log has more than that
-        if (logLen > 100) { log = log.subList(logLen - 100, logLen); }
+        if (logLen > MAX_MSGS_FETCHED) { log = log.subList(logLen - MAX_MSGS_FETCHED, logLen); }
 
         String output = "";
         for (Message message : log) {

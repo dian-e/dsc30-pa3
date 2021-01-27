@@ -43,8 +43,10 @@ public class MessengerApplicationTest {
 
     ChatRoom chatRoomA;
     ChatRoom chatRoomB;
+    ChatRoom chatRoomC;
     PhotoRoom photoRoomA;
     PhotoRoom photoRoomB;
+    PhotoRoom photoRoomC;
     ArrayList<User> users;
 
     /*
@@ -72,8 +74,10 @@ public class MessengerApplicationTest {
 
         chatRoomA = new ChatRoom();
         chatRoomB = new ChatRoom();
+        chatRoomC = new ChatRoom();
         photoRoomA = new PhotoRoom();
         photoRoomB = new PhotoRoom();
+        photoRoomC = new PhotoRoom();
 
         users = new ArrayList<>();
         users.add(nabi);
@@ -109,12 +113,12 @@ public class MessengerApplicationTest {
         }
     }
 
-    /* // Message concrete classes
+    // Message concrete classes
     @Test
-    public void testMessageGetters() {
-        assertEquals(date, textA.getDate());
-        assertEquals(marina, photoA.getSender());
-    }
+    public void testMessageGetDate() { assertEquals(date, textA.getDate()); }
+
+    @Test
+    public void testMessageGetSender() { assertEquals(marina, photoA.getSender()); }
 
     // TextMessage class
     @Test
@@ -277,9 +281,9 @@ public class MessengerApplicationTest {
     public void testStickerGetPackName() {
         assertEquals("default-objects", stickerA.getPackName());
         assertEquals("mar-collections-8", stickerB.getPackName());
-    } */
+    }
 
-    /* // User abstract class
+    // User abstract class
     @Test (expected = IllegalArgumentException.class)
     public void testUserSetBioThrowsIAE() { nabi.setBio(null); }
 
@@ -380,6 +384,19 @@ public class MessengerApplicationTest {
         assertTrue(chatRoom1.getUsers().contains(marina));
         assertTrue(chatRoom1.getUsers().contains(nabi));
         assertTrue(chatRoom1.getUsers().contains(mar));
+
+        ArrayList<User> users2 = new ArrayList<>();
+        MessageExchange chatRoom2 = marina.createChatRoom(users2);
+        assertTrue(chatRoom2.getUsers().contains(marina));
+        assertFalse(chatRoom2.getUsers().contains(mar));
+        assertFalse(chatRoom2.getUsers().contains(nabi));
+
+        ArrayList<User> users3 = new ArrayList<>();
+        users3.add(mar);
+        MessageExchange chatRoom3 = marina.createChatRoom(users3);
+        assertTrue(chatRoom3.getUsers().contains(mar));
+        assertTrue(chatRoom3.getUsers().contains(marina));
+        assertFalse(chatRoom3.getUsers().contains(nabi));
     }
 
     @Test (expected = IllegalArgumentException.class)
@@ -415,7 +432,7 @@ public class MessengerApplicationTest {
         mar.sendMessage(photoRoomA, MessageType.PHOTO, "GIF.GIF");
         mar.sendMessage(photoRoomA, MessageType.PHOTO, "jpg.jpeg.raw");
         assertEquals(2, photoRoomA.getLog().size());
-    } */
+    }
 
     // StandardUser Class
     @Test
@@ -429,17 +446,17 @@ public class MessengerApplicationTest {
     public void testStandardUserFetchMessageMEThrowsIAE() { nabi.fetchMessage(null); }
 
     @Test (expected = IllegalArgumentException.class)
-    public void testStandardUserFetchMessageUserThrowsIAE() { nabi.fetchMessage(chatRoomA); }
+    public void testStandardUserFetchMessageUserThrowsIAE() { nabi.fetchMessage(chatRoomC); }
 
     @Test
     public void testStandardUserFetchMessage() {
-        chatRoomA.addUser(nabi);
-        chatRoomA.addUser(marina);
-        nabi.sendMessage(chatRoomA, MessageType.TEXT, "image.jpg");
-        marina.sendMessage(chatRoomA, MessageType.PHOTO, "img.jpg");
-        marina.sendMessage(chatRoomA, MessageType.STICKER, "newestPack/coolSticker");
+        chatRoomC.addUser(nabi);
+        chatRoomC.addUser(marina);
+        nabi.sendMessage(chatRoomC, MessageType.TEXT, "image.jpg");
+        marina.sendMessage(chatRoomC, MessageType.PHOTO, "img.jpg");
+        marina.sendMessage(chatRoomC, MessageType.STICKER, "newestPack/coolSticker");
         String expectedSUFetch1 = "Nabi [" + date + "]: image.jpg\nThis message cannot be fetched because you are not a premium user.\nThis message cannot be fetched because you are not a premium user.\n";
-        assertEquals(expectedSUFetch1, nabi.fetchMessage(chatRoomA));
+        assertEquals(expectedSUFetch1, nabi.fetchMessage(chatRoomC));
 
         chatRoomB.addUser(nabi);
         chatRoomB.addUser(marina);
@@ -502,10 +519,22 @@ public class MessengerApplicationTest {
         assertTrue(photoRoom1.getUsers().contains(marina));
         assertFalse(photoRoom1.getUsers().contains(nabi));
         assertTrue(photoRoom1.getUsers().contains(mar));
+
+        ArrayList<User> users2 = new ArrayList<>();
+        MessageExchange photoRoom2 = marina.createPhotoRoom(users2);
+        assertTrue(photoRoom2.getUsers().contains(marina));
+        assertFalse(photoRoom2.getUsers().contains(mar));
+        assertFalse(photoRoom2.getUsers().contains(nabi));
+
+        ArrayList<User> users3 = new ArrayList<>();
+        users3.add(mar);
+        MessageExchange photoRoom3 = marina.createPhotoRoom(users3);
+        assertTrue(photoRoom3.getUsers().contains(mar));
+        assertTrue(photoRoom3.getUsers().contains(marina));
+        assertFalse(photoRoom3.getUsers().contains(nabi));
     }
 
     // ChatRoom Class
-
     @Test
     public void testChatRoomConstructor() { ChatRoom chat1 = new ChatRoom(); }
 
@@ -521,12 +550,12 @@ public class MessengerApplicationTest {
 
     @Test
     public void testChatRoomAddUser(){
-        assertTrue(chatRoomA.addUser(nabi));
-        assertTrue(chatRoomA.addUser(marina));
-        assertEquals(2, chatRoomA.getUsers().size());
+        assertTrue(chatRoomC.addUser(nabi));
+        assertTrue(chatRoomC.addUser(marina));
+        assertEquals(2, chatRoomC.getUsers().size());
 
-        assertTrue(chatRoomA.addUser(nabi));
-        assertEquals(3, chatRoomA.getUsers().size());
+        assertTrue(chatRoomC.addUser(nabi));
+        assertEquals(3, chatRoomC.getUsers().size());
     }
 
     @Test
@@ -559,10 +588,10 @@ public class MessengerApplicationTest {
 
     @Test
     public void testChatRoomRecordMessage() {
-        assertTrue(chatRoomA.recordMessage(textA));
-        assertTrue(chatRoomA.recordMessage(textA));
-        assertTrue(chatRoomA.recordMessage(photoA));
-        assertEquals(3, chatRoomA.getLog().size());
+        assertTrue(chatRoomC.recordMessage(textA));
+        assertTrue(chatRoomC.recordMessage(textA));
+        assertTrue(chatRoomC.recordMessage(photoA));
+        assertEquals(3, chatRoomC.getLog().size());
     }
 
     // PhotoRoom Class
@@ -581,13 +610,13 @@ public class MessengerApplicationTest {
 
     @Test
     public void testPhotoRoomAddUser(){
-        assertFalse(photoRoomA.addUser(nabi));
-        assertTrue(photoRoomA.addUser(marina));
-        assertEquals(1, photoRoomA.getUsers().size());
+        assertFalse(photoRoomC.addUser(nabi));
+        assertTrue(photoRoomC.addUser(marina));
+        assertEquals(1, photoRoomC.getUsers().size());
 
-        assertTrue(photoRoomA.addUser(mar));
-        assertTrue(photoRoomA.addUser(mar));
-        assertEquals(3, photoRoomA.getUsers().size());
+        assertTrue(photoRoomC.addUser(mar));
+        assertTrue(photoRoomC.addUser(mar));
+        assertEquals(3, photoRoomC.getUsers().size());
     }
 
     @Test
@@ -618,10 +647,10 @@ public class MessengerApplicationTest {
 
     @Test
     public void testPhotoRoomRecordMessage() {
-        assertTrue(photoRoomA.recordMessage(photoA));
-        assertTrue(photoRoomA.recordMessage(photoA));
-        assertFalse(photoRoomA.recordMessage(textA));
-        assertEquals(2, photoRoomA.getLog().size());
+        assertTrue(photoRoomC.recordMessage(photoA));
+        assertTrue(photoRoomC.recordMessage(photoA));
+        assertFalse(photoRoomC.recordMessage(textA));
+        assertEquals(2, photoRoomC.getLog().size());
     }
 
 }
