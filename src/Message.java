@@ -2,6 +2,7 @@
  * NAME: Diane Li
  * PID: A5773774
  */
+import java.time.LocalDate;
 
 /**
  * An abstract class that implements instance variables: sender of the message, the time the
@@ -10,8 +11,6 @@
  * @author Diane Li
  * @since ${01/23/2021}
  */
-
-import java.time.LocalDate;
 
 public abstract class Message {
 
@@ -39,9 +38,7 @@ public abstract class Message {
      * A method that returns the date of the message
      * @return LocalDate formatted time the message was sent
      */
-    public LocalDate getDate() {
-        return date;
-    }
+    public LocalDate getDate() { return this.date; }
 
     /**
      * A method that returns the sender of the message
@@ -50,7 +47,7 @@ public abstract class Message {
     public User getSender() { return this.sender; }
 
     /**
-     * An abstract method that returns the contents of the Message as a String for the subclass
+     * An abstract method that returns the contents of the Message as a String in the subclass
      * @return String containing Message contents specific to subclass
      */
     public abstract String getContents();

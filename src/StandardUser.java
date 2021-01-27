@@ -21,8 +21,7 @@ public class StandardUser extends User {
      * A constructor that initializes the username, bio, and message exchange room
      * @param username String representing user's name
      * @param bio String representing user's bio
-     * @throws IllegalArgumentException if the username is null
-     * @throws IllegalArgumentException if the bio is null
+     * @throws IllegalArgumentException if the username or bio is null
      */
     public StandardUser(String username, String bio) { super(username, bio); }
 
@@ -39,12 +38,10 @@ public class StandardUser extends User {
         if (me == null) { throw new IllegalArgumentException(); }
         else if (!me.getUsers().contains(this)) { throw new IllegalArgumentException(); }
 
-        ArrayList<Message> log = me.getLog();
-        List<Message> standardLog;
+        List<Message> log = me.getLog();
         int logLen = log.size();
-        if (logLen > 100) {
-            standardLog = log.subList(logLen - 100, logLen);
-        }
+        // takes last 100 messages if the log has more than that
+        if (logLen > 100) { log = log.subList(logLen - 100, logLen); }
 
         String output = "";
         for (Message message : log) {

@@ -17,10 +17,9 @@ public class StickerMessage extends Message {
 
     /**
      * A constructor that sets the sender, sticker pack name, and sticker name
-     *
      * @param sender User who sends the message
      * @param stickerSource String path to sticker  in the form packName/stickerName
-     * @throws OperationDeniedException if the sender is not a premium user
+     * @throws OperationDeniedException with message if the sender is not a premium user
      * @throws IllegalArgumentException if the sender or stickerSource is null
      */
     public StickerMessage(User sender, String stickerSource) throws OperationDeniedException {
@@ -37,20 +36,18 @@ public class StickerMessage extends Message {
 
     /**
      * A method that returns the message's sender name, local date, sticker name, and pack name
-     *
      * @return String containing the sender display name, date to string, sticker name, pack name
      */
     public String getContents() {
         String senderOut = getSender().displayName();
         String dateOut = getDate().toString();
-        String stickerOut = "Sticker " + this.contents + " from Pack " + this.packName;
-        String output = senderOut + " " + dateOut + ": " + stickerOut;
+        String stickerOut = "Sticker [" + this.contents + "] from Pack [" + this.packName + "]";
+        String output = senderOut + " [" + dateOut + "]: " + stickerOut;
         return output;
     }
 
     /**
      * A method that returns the sticker's pack name
-     *
      * @return String name of the sticker's pack
      */
     public String getPackName() {

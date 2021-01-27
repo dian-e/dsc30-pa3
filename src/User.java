@@ -27,8 +27,7 @@ public abstract class User {
      * A constructor that initializes the username, bio, and message exchange room
      * @param username String representing user's name
      * @param bio String representing user's bio
-     * @throws IllegalArgumentException if the username is null
-     * @throws IllegalArgumentException if the bio is null
+     * @throws IllegalArgumentException if the username or bio is null
      */
     public User(String username, String bio) {
         if (username == null || bio == null) { throw new IllegalArgumentException(); }
@@ -42,7 +41,10 @@ public abstract class User {
      * @param newBio String to update the class variable bio
      * @throws IllegalArgumentException if the new bio is null
      */
-    public void setBio(String newBio) { this.bio = newBio; }
+    public void setBio(String newBio) {
+        if (newBio == null) { throw new IllegalArgumentException(); }
+        this.bio = newBio;
+    }
 
     /**
      * A method that returns the bio
@@ -60,6 +62,7 @@ public abstract class User {
      */
     public void joinRoom(MessageExchange me) throws OperationDeniedException {
         if (me == null) { throw new IllegalArgumentException(); }
+        // checks user doesn't have this room already and the room will successfully add the user
         boolean alreadyInRoom = rooms.contains(me);
         boolean meFailedToAdd = !me.addUser(this);
         if (alreadyInRoom || meFailedToAdd) {
@@ -67,7 +70,6 @@ public abstract class User {
         }
 
         this.rooms.add(me);
-        me.addUser(this);
     }
 
     /**
@@ -95,6 +97,8 @@ public abstract class User {
         if (users == null) { throw new IllegalArgumentException(); }
 
         ChatRoom newRoom = new ChatRoom();
+        // adds this user to the list of users to join the room
+        users.add(this);
         for (User person : users) {
             try {
                 person.joinRoom(newRoom);
@@ -123,6 +127,7 @@ public abstract class User {
 
         Message message;
         try {
+            // creates new object of given message type
             if (msgType == MessageType.TEXT) {
                 message = new TextMessage(this, contents);
             } else if (msgType == MessageType.PHOTO) {
@@ -133,6 +138,7 @@ public abstract class User {
                 throw new OperationDeniedException();
             }
 
+            // ensures the ME room accepts the message type created (PhotoRoom only accepts Photos)
             if (me instanceof PhotoRoom && !(message instanceof PhotoMessage)) {
                 System.out.println(INVALID_MSG_TYPE);
             } else {
@@ -143,8 +149,18 @@ public abstract class User {
         }
     }
 
+    /**
+     * A method that fetches messages from the log of the MessageExchange, appending the contents
+     * of the messages and preserving the order
+     * @param me MessageExchange to fetch message log from
+     * @return String composed of the message contents
+     */
     public abstract String fetchMessage(MessageExchange me);
 
+    /**
+     * A method that returns the user's username
+     * @return String username of user
+     */
     public abstract String displayName();
 
 }

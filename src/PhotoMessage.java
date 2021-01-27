@@ -22,7 +22,6 @@ public class PhotoMessage extends Message {
 
     /**
      * A constructor that initializes the message's sender, contents, and extension
-     *
      * @param sender User who sends the message
      * @param photoSource String containing path to photo  in the form [filename].[extension]
      * @throws OperationDeniedException if the sender is not a premium user
@@ -37,6 +36,7 @@ public class PhotoMessage extends Message {
         if (photoSource == null) { throw new IllegalArgumentException(); }
         this.contents = photoSource;
 
+        // loops through valid extensions to check if photoSource path ends with .[extension]
         String[] validExtensions = {".jpg", ".jpeg", ".gif", ".png", ".tif", ".tiff", ".raw"};
         String contentsLower = this.contents.toLowerCase();
         boolean validExtension = false;
@@ -51,24 +51,20 @@ public class PhotoMessage extends Message {
     }
 
     /**
-     * A method that returns the extension of the photo path
-     *
-     * @return String photoSource extension after the period
+     * A method that returns the PhotoMessage's sender name, date, and path
+     * @return String containing the sender's displayed name, local date to string, and path file
      */
     public String getContents() {
         String senderOut = getSender().displayName();
         String dateOut = getDate().toString();
-        String output = senderOut + " " + dateOut + ": " + this.contents;
+        String output = senderOut + " [" + dateOut + "]: Picture at " + this.contents;
         return output;
     }
 
     /**
-     * A method that returns the PhotoMessage's sender name, date, and path
-     *
-     * @return String containing the sender's displayed name, local date to string, and path file
+     * A method that returns the extension of the photo path
+     * @return String photoSource extension after the period
      */
-    public String getExtension() {
-        return this.extension;
-    }
+    public String getExtension() { return this.extension; }
 
 }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 /**
  * A class that implements the interface MessageExchange and simulates a chat room that records
- * logs of messages and a list of users in the room. Only PremiumUser can join this rooom, and only
+ * logs of messages and a list of users in the room. Only PremiumUser can join this room, and only
  * PhotoMessage can be sent
  *
  * @author Diane Li

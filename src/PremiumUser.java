@@ -41,7 +41,7 @@ public class PremiumUser extends User {
         if (me == null) { throw new IllegalArgumentException(); }
         else if (!me.getUsers().contains(this)) { throw new IllegalArgumentException(); }
 
-        ArrayList<Message> log = me.getLog();
+        List<Message> log = me.getLog();
         String output = "";
         for (Message message : log) {
             output += message.getContents() + "\n";
@@ -62,6 +62,7 @@ public class PremiumUser extends User {
         if (users == null) { throw new IllegalArgumentException(); }
 
         PhotoRoom newRoom = new PhotoRoom();
+        users.add(this);
         for (User person : users) {
             try {
                 person.joinRoom(newRoom);

@@ -2,10 +2,10 @@
   Name: Diane Li
   PID:  A15773774
  */
-
 import java.time.LocalDate;
 import org.junit.*;
 import static org.junit.Assert.*;
+import java.util.ArrayList;
 
 /**
  * Messenger Application Test
@@ -24,6 +24,10 @@ public class MessengerApplicationTest {
             "This operation is disabled in your user group.";
     private static final String INVALID_INPUT =
             "The source path given cannot be parsed as photo.";
+    protected static final String JOIN_ROOM_FAILED =
+            "Failed to join the chat room.";
+    protected static final String INVALID_MSG_TYPE =
+            "Cannot send this type of message to the specified room.";
 
     /* Global test variables. Initialize them in @Before method. */
     PremiumUser marina;
@@ -36,6 +40,12 @@ public class MessengerApplicationTest {
     PhotoMessage photoB;
     StickerMessage stickerA;
     StickerMessage stickerB;
+
+    ChatRoom chatRoomA;
+    ChatRoom chatRoomB;
+    PhotoRoom photoRoomA;
+    PhotoRoom photoRoomB;
+    ArrayList<User> users;
 
     /*
       The date used in Message and its subclasses. You can directly
@@ -51,25 +61,28 @@ public class MessengerApplicationTest {
         nabi = new StandardUser("Nabi", "Nabi's bio");
         mar = new PremiumUser("Mar", "Student");
 
-        try { textA = new TextMessage(marina, "Deadline is Tuesday."); }
+        try {
+            textA = new TextMessage(marina, "Deadline is Tuesday.");
+            photoA = new PhotoMessage(marina, "users/Marina/images/IMG_5550.JPG");
+            photoB = new PhotoMessage(mar, "selfie.giF");
+            stickerA = new StickerMessage(marina, "default-objects/telephone");
+            stickerB = new StickerMessage(mar, "mar-collections-8/LOLFace");
+        }
         catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
 
-        try { photoA = new PhotoMessage(marina, "users/Marina/images/IMG_5550.JPG"); }
-        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
-        try { photoB = new PhotoMessage(mar, "selfie.giF"); }
-        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
+        chatRoomA = new ChatRoom();
+        chatRoomB = new ChatRoom();
+        photoRoomA = new PhotoRoom();
+        photoRoomB = new PhotoRoom();
 
-        try { stickerA = new StickerMessage(marina, "default-objeccts/telephone"); }
-        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
-        try { stickerB = new StickerMessage(marina, "mar-collections-8/LOLFace"); }
-        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
+        users = new ArrayList<>();
+        users.add(nabi);
+        users.add(mar);
     }
 
     /* Recap: Assert exception without message */
     @Test (expected = IllegalArgumentException.class)
-    public void testPremiumUserThrowsIAE() {
-        marina = new PremiumUser("Marina", null);
-    }
+    public void testPremiumUserThrowsIAE() { marina = new PremiumUser("Marina", null); }
 
     /* Assert exception with message */
     @Test
@@ -96,7 +109,7 @@ public class MessengerApplicationTest {
         }
     }
 
-    // Message concrete classes
+    /* // Message concrete classes
     @Test
     public void testMessageGetters() {
         assertEquals(date, textA.getDate());
@@ -104,7 +117,7 @@ public class MessengerApplicationTest {
     }
 
     // TextMessage class
-    @Test (expected = OperationDeniedException.class)
+    @Test
     public void testTextMessageConstructorThrowsODE() {
         try {
             String maxLen = "YoUu&UcjBa(SXwBi#kkgw#7VcDw)eZu(oyb.NySi5Y0.-Xu#m&S)MA^iCMFFOzb(FH,KP$ykR+2oUuvu=NCs)H,osco&LG,uS*+t%qyQs3%iBCY0dd3qfpc$B846AS-hBu5;T)faa5n)rEW$z&cgIUX-%GL2K+*tgl*7g4Q;ySPu&^LYqG6kuseOFg-0g909A#s^jo6w;631rIgmhkgao7mA-AhnstaxfJMlL&11^.3N54WNep521Q#^G.y3t0+$cY6Z8NPv)HZ7tHa+OZ(Dv4Y94,3X$t(1lNvdsFJ$E%-KnMW8)hWKEr(LsL$sdCj@(ok.ozwtkbHoxp#!VLy2h8dH7^p%OlRd;y6%=RAu1PM6Y=;53K3FpNReOdLG;ddN,6#CI=&bU5vK=L3s8=L!l13AOL3A5ffT2e.itL=DEM^7Z7f)iwnZft3wuzm&7gw)BUWfSPD-3)zk7,vUYItjXF8&m*3$r-ElQ2H2-AAkdSCJiua2M!wD\n";
@@ -142,12 +155,12 @@ public class MessengerApplicationTest {
 
     @Test
     public void testTextGetContents() {
-        String marinaTextContents = "<Instructor> Marina " + date + ": Deadline is Tuesday.";
+        String marinaTextContents = "<Premium> Marina [" + date + "]: Deadline is Tuesday.";
         assertEquals(marinaTextContents, textA.getContents());
     }
 
     // PhotoMessage class
-    @Test (expected = OperationDeniedException.class)
+    @Test
     public void testPhotoMessageConstructorThrowsODEUser() {
         try {
             PhotoMessage photo1 = new PhotoMessage(nabi, "pm.jpg");
@@ -185,7 +198,7 @@ public class MessengerApplicationTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void testPhotoMessageConstructorThrowsIAEText() {
-        try { TextMessage photo5 = new TextMessage(marina, null); }
+        try { PhotoMessage photo5 = new PhotoMessage(marina, null); }
         catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
     }
 
@@ -203,21 +216,21 @@ public class MessengerApplicationTest {
 
     @Test
     public void testPhotoGetContents() {
-        String marinaPhotoContents = "<Instructor> Marina " + date + ": Picture at users/Marina/images/IMG_5550.JPG";
+        String marinaPhotoContents = "<Premium> Marina [" + date + "]: Picture at users/Marina/images/IMG_5550.JPG";
         assertEquals(marinaPhotoContents, photoA.getContents());
 
-        String marPhotoContents = "<Student> Mar " + date + ": Picture at selfie.giF";
+        String marPhotoContents = "<Premium> Mar [" + date + "]: Picture at selfie.giF";
         assertEquals(marPhotoContents, photoB.getContents());
     }
 
     @Test
     public void testPhotoGetExtension() {
-        assertEquals(".JPG", photoA.getExtension());
-        assertEquals(".giF", photoB.getContents());
+        assertEquals("jpg", photoA.getExtension());
+        assertEquals("gif", photoB.getExtension());
     }
 
     // StickerMessage class
-    @Test (expected = OperationDeniedException.class)
+    @Test
     public void testStickerMessageConstructorThrowsODEUser() {
         try {
             StickerMessage sticker1 = new StickerMessage(nabi, "packName/stickerName");
@@ -253,17 +266,362 @@ public class MessengerApplicationTest {
 
     @Test
     public void testStickerGetContents() {
-        String marinaStickerContents = "<Instructor> Marina " + date + ": Sticker [Questioning] from Pack [yourcraft-8]";
+        String marinaStickerContents = "<Premium> Marina [" + date + "]: Sticker [telephone] from Pack [default-objects]";
         assertEquals(marinaStickerContents, stickerA.getContents());
 
-        String marPhotoContents = "<Student> Mar " + date + ": Picture at selfie.giF";
-        assertEquals(marPhotoContents, photoB.getContents());
+        String marStickerContents = "<Premium> Mar [" + date + "]: Sticker [LOLFace] from Pack [mar-collections-8]";
+        assertEquals(marStickerContents, stickerB.getContents());
     }
 
     @Test
     public void testStickerGetPackName() {
         assertEquals("default-objects", stickerA.getPackName());
         assertEquals("mar-collections-8", stickerB.getPackName());
+    } */
+
+    /* // User abstract class
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserSetBioThrowsIAE() { nabi.setBio(null); }
+
+    @Test
+    public void testUserSettersAndGetters() {
+        assertEquals("Nabi's bio", nabi.displayBio());
+        nabi.setBio("NEW BIO !");
+        assertEquals("NEW BIO !", nabi.displayBio());
+
+        assertEquals("Instructor", marina.displayBio());
+        marina.setBio("DSC30 Instructor");
+        assertEquals("DSC30 Instructor", marina.displayBio());
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserJoinRoomThrowsIAE() {
+        try {
+            marina.joinRoom(null);
+        } catch (OperationDeniedException ode) {
+            System.out.println(ode.getMessage());
+        }
+    }
+
+    @Test
+    public void testUserJoinRoomUserThrowsODE() {
+        try { nabi.joinRoom(chatRoomA); }
+        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
+
+        try {
+            nabi.joinRoom(chatRoomA);
+            fail("Exception not thrown");
+        } catch (OperationDeniedException ode) {
+            assertEquals(JOIN_ROOM_FAILED, ode.getMessage());
+        }
+    }
+
+    @Test
+    public void testUserJoinRoomMEThrowsODE() {
+        try {
+            nabi.joinRoom(photoRoomA);
+            fail("Exception not thrown");
+        } catch (OperationDeniedException ode) {
+            assertEquals(JOIN_ROOM_FAILED, ode.getMessage());
+        }
+    }
+
+    @Test
+    public void testUserJoinRoom() {
+        try {
+            marina.joinRoom(chatRoomA);
+            nabi.joinRoom(chatRoomA);
+            mar.joinRoom(chatRoomA);
+        }
+        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
+        assertTrue(chatRoomA.getUsers().contains(marina));
+        assertTrue(chatRoomA.getUsers().contains(nabi));
+
+        try {
+            marina.joinRoom(photoRoomA);
+            mar.joinRoom(photoRoomA);
+        }
+        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
+        assertTrue(photoRoomA.getUsers().contains(mar));
+        assertFalse(photoRoomA.getUsers().contains(nabi));
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserQuitRoomThrowsIAE() { marina.quitRoom(null); }
+
+    @Test
+    public void testUserQuitRoom() {
+        try {
+            marina.joinRoom(chatRoomA);
+            nabi.joinRoom(chatRoomA);
+            mar.joinRoom(chatRoomA);
+
+            marina.joinRoom(photoRoomA);
+            mar.joinRoom(photoRoomA);
+        }
+        catch (OperationDeniedException ode) { fail("ODE should not be thrown"); }
+
+        marina.quitRoom(chatRoomA);
+        assertFalse(chatRoomA.getUsers().contains(marina));
+
+        mar.quitRoom(photoRoomA);
+        assertFalse(photoRoomA.getUsers().contains(mar));
+
+        nabi.quitRoom(photoRoomA);
+        assertFalse(photoRoomA.getUsers().contains(nabi));
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserCreateChatRoomThrowsIAE() { marina.createChatRoom(null); }
+
+    @Test
+    public void testUserCreateChatRoom() {
+        MessageExchange chatRoom1 = marina.createChatRoom(users);
+        assertTrue(chatRoom1.getUsers().contains(marina));
+        assertTrue(chatRoom1.getUsers().contains(nabi));
+        assertTrue(chatRoom1.getUsers().contains(mar));
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserSendMessageMEThrowsIAE() { marina.sendMessage(null, MessageType.TEXT, "oh hello"); }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserSendMessageTypeThrowsIAE() { marina.sendMessage(chatRoomA, null, "oh hello"); }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserSendMessageContentsThrowsIAE() { marina.sendMessage(chatRoomA, MessageType.TEXT, null); }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testUserSendMessageUserThrowsIAE() { marina.sendMessage(chatRoomA, MessageType.TEXT, "oh hello"); }
+
+    @Test
+    public void testUserSendMessageMETypeThrowsIAE() {
+        chatRoomA.addUser(nabi);
+        chatRoomA.addUser(marina);
+        photoRoomA.addUser(mar);
+
+        // should print exception message using exception.getMessage()
+        nabi.sendMessage(chatRoomA, MessageType.PHOTO, "img.jpg");
+
+        // should print INVALID_MSG_TYPE message
+        mar.sendMessage(photoRoomA, MessageType.TEXT, "img.jpg");
+
+        // should properly record
+        nabi.sendMessage(chatRoomA, MessageType.TEXT, "image.jpg");
+        marina.sendMessage(chatRoomA, MessageType.PHOTO, "img.jpg");
+        marina.sendMessage(chatRoomA, MessageType.STICKER, "newestPack/coolSticker");
+        assertEquals(3, chatRoomA.getLog().size());
+
+        mar.sendMessage(photoRoomA, MessageType.PHOTO, "GIF.GIF");
+        mar.sendMessage(photoRoomA, MessageType.PHOTO, "jpg.jpeg.raw");
+        assertEquals(2, photoRoomA.getLog().size());
+    } */
+
+    // StandardUser Class
+    @Test
+    public void testStandardUserConstructor() {
+        StandardUser standard1 = new StandardUser("user10205", "doesn't matter here");
+        StandardUser standard2 = new StandardUser("myUser", " b i o ");
+        StandardUser standard3 = new StandardUser("diane", "writing junit test");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testStandardUserFetchMessageMEThrowsIAE() { nabi.fetchMessage(null); }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testStandardUserFetchMessageUserThrowsIAE() { nabi.fetchMessage(chatRoomA); }
+
+    @Test
+    public void testStandardUserFetchMessage() {
+        chatRoomA.addUser(nabi);
+        chatRoomA.addUser(marina);
+        nabi.sendMessage(chatRoomA, MessageType.TEXT, "image.jpg");
+        marina.sendMessage(chatRoomA, MessageType.PHOTO, "img.jpg");
+        marina.sendMessage(chatRoomA, MessageType.STICKER, "newestPack/coolSticker");
+        String expectedSUFetch1 = "Nabi [" + date + "]: image.jpg\nThis message cannot be fetched because you are not a premium user.\nThis message cannot be fetched because you are not a premium user.\n";
+        assertEquals(expectedSUFetch1, nabi.fetchMessage(chatRoomA));
+
+        chatRoomB.addUser(nabi);
+        chatRoomB.addUser(marina);
+        assertEquals("", nabi.fetchMessage(chatRoomB));
+
+        marina.sendMessage(chatRoomB, MessageType.STICKER, "mar-collections-8/LOLFace");
+        assertEquals("This message cannot be fetched because you are not a premium user.\n", nabi.fetchMessage(chatRoomB));
+    }
+
+    @Test
+    public void testStandardUserDisplayName() { assertEquals("Nabi", nabi.displayName()); }
+
+    // PremiumUser Class
+    @Test
+    public void testPremiumUserConstructor() {
+        PremiumUser premium1 = new PremiumUser("Professional", "i'm profesh");
+        PremiumUser premium2 = new PremiumUser("Mom", "new account!!");
+        PremiumUser premium3 = new PremiumUser("Family", "entire family account");
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testPremiumUserFetchMessageMEThrowsIAE() { marina.fetchMessage(null); }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testPremiumUserFetchMessageUserThrowsIAE() { marina.fetchMessage(chatRoomA); }
+
+    @Test
+    public void testPremiumUserFetchMessage() {
+        chatRoomA.addUser(nabi);
+        chatRoomA.addUser(marina);
+        nabi.sendMessage(chatRoomA, MessageType.TEXT, "image.jpg");
+        marina.sendMessage(chatRoomA, MessageType.PHOTO, "img.jpg");
+        marina.sendMessage(chatRoomA, MessageType.STICKER, "newest Pack/cool Sticker");
+        String expectedSUFetch1 = "Nabi [" + date + "]: image.jpg\n<Premium> Marina [" + date + "]: Picture at img.jpg\n<Premium> Marina [" + date + "]: Sticker [cool Sticker] from Pack [newest Pack]\n";
+        assertEquals(expectedSUFetch1, marina.fetchMessage(chatRoomA));
+
+        chatRoomB.addUser(marina);
+        chatRoomB.addUser(mar);
+        assertEquals("", marina.fetchMessage(chatRoomB));
+
+        mar.sendMessage(chatRoomB, MessageType.STICKER, "mar-collections-8/LOLFace");
+        assertEquals(stickerB.getContents() + "\n", mar.fetchMessage(chatRoomB));
+    }
+
+    @Test
+    public void testPremiumUserDisplayName() { assertEquals("<Premium> Mar", mar.displayName()); }
+
+    @Test
+    public void testPremiumUserSetCustomTitle() {
+        marina.setCustomTitle("DSC30 Instructor");
+        assertEquals("<DSC30 Instructor> Marina", marina.displayName());
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testPremiumUserCreatePhotoRoomThrowsIAE() { marina.createChatRoom(null); }
+
+    @Test
+    public void testPremiumUserCreatePhotoRoom() {
+        MessageExchange photoRoom1 = marina.createPhotoRoom(users);
+        assertTrue(photoRoom1.getUsers().contains(marina));
+        assertFalse(photoRoom1.getUsers().contains(nabi));
+        assertTrue(photoRoom1.getUsers().contains(mar));
+    }
+
+    // ChatRoom Class
+
+    @Test
+    public void testChatRoomConstructor() { ChatRoom chat1 = new ChatRoom(); }
+
+    @Test
+    public void testChatRoomGetLog() {
+        chatRoomA.recordMessage(textA);
+        chatRoomA.recordMessage(textA);
+        ArrayList<Message> chatA = new ArrayList<>();
+        chatA.add(textA);
+        chatA.add(textA);
+        assertEquals(chatA, chatRoomA.getLog());
+    }
+
+    @Test
+    public void testChatRoomAddUser(){
+        assertTrue(chatRoomA.addUser(nabi));
+        assertTrue(chatRoomA.addUser(marina));
+        assertEquals(2, chatRoomA.getUsers().size());
+
+        assertTrue(chatRoomA.addUser(nabi));
+        assertEquals(3, chatRoomA.getUsers().size());
+    }
+
+    @Test
+    public void testChatRoomRemoveUser() {
+        chatRoomA.removeUser(nabi);
+        assertEquals(0, chatRoomA.getUsers().size());
+
+        chatRoomA.addUser(nabi);
+        chatRoomA.addUser(nabi);
+        chatRoomA.removeUser(nabi);
+        assertEquals(1, chatRoomA.getUsers().size());
+
+        chatRoomA.addUser(nabi);
+        chatRoomA.addUser(marina);
+        chatRoomA.addUser(mar);
+        chatRoomA.removeUser(nabi);
+        chatRoomA.removeUser(mar);
+        assertEquals(2, chatRoomA.getUsers().size());
+    }
+
+    @Test
+    public void testChatRoomGetUsers() {
+        chatRoomB.addUser(nabi);
+        chatRoomB.addUser(marina);
+        ArrayList<User> chatB = new ArrayList<>();
+        chatB.add(nabi);
+        chatB.add(marina);
+        assertEquals(chatB, chatRoomB.getUsers());
+    }
+
+    @Test
+    public void testChatRoomRecordMessage() {
+        assertTrue(chatRoomA.recordMessage(textA));
+        assertTrue(chatRoomA.recordMessage(textA));
+        assertTrue(chatRoomA.recordMessage(photoA));
+        assertEquals(3, chatRoomA.getLog().size());
+    }
+
+    // PhotoRoom Class
+    @Test
+    public void testPhotoRoomConstructor() { PhotoRoom photo1 = new PhotoRoom(); }
+
+    @Test
+    public void testPhotoRoomGetLog() {
+        photoRoomA.recordMessage(photoA);
+        photoRoomA.recordMessage(photoA);
+        ArrayList<Message> photo2 = new ArrayList<>();
+        photo2.add(photoA);
+        photo2.add(photoA);
+        assertEquals(photo2, photoRoomA.getLog());
+    }
+
+    @Test
+    public void testPhotoRoomAddUser(){
+        assertFalse(photoRoomA.addUser(nabi));
+        assertTrue(photoRoomA.addUser(marina));
+        assertEquals(1, photoRoomA.getUsers().size());
+
+        assertTrue(photoRoomA.addUser(mar));
+        assertTrue(photoRoomA.addUser(mar));
+        assertEquals(3, photoRoomA.getUsers().size());
+    }
+
+    @Test
+    public void testPhotoRoomRemoveUser() {
+        photoRoomA.removeUser(nabi);
+        assertEquals(0, photoRoomA.getUsers().size());
+
+        photoRoomA.addUser(nabi);
+        photoRoomA.addUser(marina);
+        photoRoomA.removeUser(nabi);
+        assertEquals(1, photoRoomA.getUsers().size());
+
+        photoRoomA.addUser(marina);
+        photoRoomA.addUser(mar);
+        photoRoomA.removeUser(mar);
+        photoRoomA.removeUser(mar);
+        assertEquals(2, photoRoomA.getUsers().size());
+    }
+
+    @Test
+    public void testPhotoRoomGetUsers() {
+        photoRoomB.addUser(nabi);
+        photoRoomB.addUser(marina);
+        ArrayList<User> photoB = new ArrayList<>();
+        photoB.add(marina);
+        assertEquals(photoB, photoRoomB.getUsers());
+    }
+
+    @Test
+    public void testPhotoRoomRecordMessage() {
+        assertTrue(photoRoomA.recordMessage(photoA));
+        assertTrue(photoRoomA.recordMessage(photoA));
+        assertFalse(photoRoomA.recordMessage(textA));
+        assertEquals(2, photoRoomA.getLog().size());
     }
 
 }

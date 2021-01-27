@@ -5,9 +5,8 @@
 import java.util.ArrayList;
 
 /**
- * A class that implements the interface MessageExchange and simulates a chat room that moderates
- * the communications between users by storing logs of the messages and recording the users that
- * are in a particular chat room
+ * A class that implements the interface MessageExchange and simulates a chat room that stores logs
+ * of the messages and records the users who are in a particular chat room
  *
  * @author Diane Li
  * @since ${01/24/2021}
